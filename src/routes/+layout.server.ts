@@ -1,15 +1,33 @@
-import { db } from '$lib/db';
+import { connectDB } from '$lib/db';
+import { User } from '$lib/server/models/User';
 
 export const load = async ({ cookies }) => {
-	const username = cookies.get('session');
+	const userAddress = cookies.get('session');
 
-	if (!username) {
+	if (!userAddress) {
 		return { user: null };
 	}
 
-	const user = await db.collection('users').findOne({ username });
+	try {
+		await connectDB();
 
-	return {
-		user: user ? JSON.parse(JSON.stringify(user)) : null
-	};
+		const user = await User.findOne({ address: userAddress }).lean();
+
+		if (!user) {
+			return { user: null };
+		}
+
+		return {
+			user: {
+				username: user.address.slice(0, 6) + '...' + user.address.slice(-4),
+				address: user.address,
+				balances: user.balances,
+				_id: user._id.toString()
+			}
+		};
+
+	} catch (error) {
+		console.error('Layout Load Hatası:', error);
+		return { user: null };
+	}
 };

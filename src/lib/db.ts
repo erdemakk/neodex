@@ -1,7 +1,15 @@
-import { MongoClient } from 'mongodb';
+import mongoose from 'mongoose';
 import { MONGO_URI } from '$env/static/private';
 
-const client = new MongoClient(MONGO_URI);
-await client.connect();
+export const connectDB = async () => {
+	if (mongoose.connection.readyState === 1) {
+		return;
+	}
 
-export const db = client.db('neodex');
+	try {
+		await mongoose.connect(MONGO_URI);
+		console.log('MongoDB Mongoose Connected');
+	} catch (error) {
+		console.error('Database connection error:', error);
+	}
+};

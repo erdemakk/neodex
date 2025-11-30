@@ -11,7 +11,7 @@
 	<form method="POST" action="?/login" class="space-y-4">
 
 		<div>
-			<label for="username" class="block text-sm text-gray-400 mb-1">Username</label>
+			<label for="username" class="block text-sm font-bold text-gray-400 mb-2">Username</label>
 			<input
 				id="username"
 				type="text"
@@ -23,7 +23,7 @@
 		</div>
 
 		<div>
-			<label for="password" class="block text-sm text-gray-400 mb-1">Password</label>
+			<label for="password" class="block text-sm font-bold text-gray-400 mb-2">Password</label>
 			<input
 				id="password"
 				type="password"
@@ -42,7 +42,7 @@
 
 		<button
 			type="submit"
-			class="w-full bg-[#00ff9d] hover:bg-[#00ff9d]/90 text-black font-bold py-3 rounded-lg transition-all transform hover:scale-[1.02]">
+			class="w-full bg-[#00ff9d] hover:bg-[#00ff9d]/90 text-black font-bold py-3 rounded-lg transition-all transform hover:scale-[1.02] cursor-pointer">
 			Login
 		</button>
 

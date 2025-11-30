@@ -22,7 +22,7 @@
 
 	{#if data.user}
 		<div class="pt-8 animate-fade-in">
-			<button class="px-8 py-4 rounded-xl bg-white text-black font-bold text-lg hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+			<button class="px-8 py-4 rounded-xl bg-white text-black font-bold text-lg hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.3)] cursor-pointer">
 				Start Trading Now
 			</button>
 		</div>

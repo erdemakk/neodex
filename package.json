@@ -37,6 +37,10 @@
 		"vite": "^7.1.10"
 	},
 	"dependencies": {
-		"mongodb": "^7.0.0"
+		"@wagmi/connectors": "^7.0.2",
+		"@wagmi/core": "^3.0.0",
+		"mongodb": "^7.0.0",
+		"mongoose": "^9.0.0",
+		"viem": "^2.40.3"
 	}
 }

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import "../app.css";
-	import { onMount } from "svelte";
+	import '../app.css';
+	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 
 	import { wallet } from '$lib/walletStore';
@@ -41,16 +41,16 @@
 			}
 
 		} catch (error) {
-			console.error("Connection error:", error);
+			console.error('Connection error:', error);
 		}
 	};
 
 	const handleDisconnect = async () => {
 		try {
 			await disconnect(config);
-			wallet.set({ address: "", isConnected: false });
+			wallet.set({ address: '', isConnected: false });
 		} catch (error) {
-			console.error("Disconnect error:", error);
+			console.error('Disconnect error:', error);
 		}
 	};
 
@@ -64,53 +64,69 @@
 	});
 </script>
 
-<div class="min-h-screen flex flex-col text-white">
+<div class="min-h-screen flex flex-col text-white bg-black selection:bg-[#00ff9d] selection:text-black">
 
-	<header class="sticky top-0 z-50 w-full border-b border-white/5 bg-black/60 backdrop-blur-xl">
-		<div class="w-full flex h-16 items-center justify-between px-4 md:px-8">
+	<header class="sticky top-0 z-50 w-full border-b border-white/5 bg-black/80 backdrop-blur-xl">
+		<div class="w-full flex h-20 items-center justify-between px-4 md:px-8">
 
-			<a href="/" class="flex items-center gap-2 group">
-				<div class="relative flex h-8 w-8 items-center justify-center rounded bg-white/5 border border-white/10 group-hover:border-[#00ff9d]/50 group-hover:shadow-[0_0_15px_rgba(0,255,157,0.3)] transition-all duration-300">
-					<div class="h-3 w-3 rounded-sm bg-[#00ff9d] rotate-45"></div>
+			<a href="/" class="group flex items-center gap-3 select-none">
+				<div class="relative flex h-10 w-10 items-center justify-center">
+					<div class="absolute inset-0 rounded-xl bg-[#00ff9d] blur-md opacity-20 transition-opacity duration-500 group-hover:opacity-100 group-hover:blur-lg"></div>
+
+					<div class="relative flex h-full w-full items-center justify-center rounded-xl border border-white/10 bg-black/90 transition-colors duration-300 group-hover:border-[#00ff9d]/50">
+						<div class="h-3.5 w-3.5 rounded-sm bg-[#00ff9d] transition-transform duration-500 group-hover:rotate-180 shadow-[0_0_10px_#00ff9d]"></div>
+					</div>
 				</div>
-				<span class="text-lg font-bold tracking-tight">
-          Neo<span class="text-[#00ff9d]">DEX</span>
-        </span>
+
+				<div class="flex flex-col leading-none">
+      <span class="text-2xl font-black tracking-tighter text-white">
+       Neo<span class="bg-gradient-to-r from-[#00ff9d] via-white to-[#00ff9d] bg-[length:200%_auto] bg-clip-text text-transparent animate-shine">DEX</span>
+      </span>
+					<span class="text-[0.6rem] font-bold tracking-[0.2em] text-gray-500 group-hover:text-[#00ff9d] transition-colors duration-300">TRADE</span>
+				</div>
 			</a>
 
 			<nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-				<a href="/" class="hover:text-white transition-colors">Trade</a>
-				<a href="/" class="hover:text-white transition-colors">Markets</a>
-				<a href="/" class="hover:text-white transition-colors">Earn</a>
+				<a href="/" class="hover:text-[#00ff9d] transition-colors relative group">
+					Trade
+					<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#00ff9d] transition-all duration-300 group-hover:w-full"></span>
+				</a>
+				<a href="/" class="hover:text-[#00ff9d] transition-colors relative group">
+					Markets
+					<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#00ff9d] transition-all duration-300 group-hover:w-full"></span>
+				</a>
+				<a href="/" class="hover:text-[#00ff9d] transition-colors relative group">
+					Earn
+					<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#00ff9d] transition-all duration-300 group-hover:w-full"></span>
+				</a>
 			</nav>
 
-			<div class="flex items-center gap-3">
+			<div class="flex items-center gap-4">
 
 				{#if data.user}
 					<div class="hidden md:flex flex-col items-end mr-2">
-						<span class="text-sm font-bold text-white uppercase">{shortAddress}</span>
-						<div class="flex gap-2 text-xs">
-							<span class="text-[#00ff9d] font-mono">{data.user.balances?.usdt} USDT</span>
-							<span class="text-purple-400 font-mono">{data.user.balances?.neo} NEO</span>
+						<span class="text-sm font-bold text-white uppercase tracking-wider">{shortAddress}</span>
+						<div class="flex gap-3 text-xs font-mono opacity-80">
+							<span class="text-[#00ff9d]">{data.user.balances?.usdt || '0.00'} USDT</span>
+							<span class="text-purple-400">{data.user.balances?.neo || '0.00'} NEO</span>
 						</div>
 					</div>
 
 					<form method="POST" action="/?/logout" on:submit={handleDisconnect}>
-						<button type="submit" class="text-sm text-red-400 hover:text-red-300 transition-colors font-medium px-3 py-2 rounded hover:bg-red-500/10 cursor-pointer">
-							Logout
+						<button type="submit"
+										class="text-xs font-bold text-red-400 border border-red-500/20 hover:border-red-500 hover:bg-red-500/10 transition-all px-4 py-2 rounded-lg cursor-pointer">
+							EXIT
 						</button>
 					</form>
 
 				{:else}
-					<a href="{base}/login" class="text-sm font-medium text-gray-300 hover:text-white transition-colors px-2">
+					<a href="{base}/login" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">
 						Login
 					</a>
 
-					<div class="h-6 w-px bg-white/10 mx-1"></div>
-
 					<button
 						on:click={handleConnect}
-						class="hidden md:flex items-center gap-2 rounded-lg bg-[#00ff9d] px-4 py-2 text-sm font-bold text-black transition-all hover:bg-[#00ff9d]/90 hover:shadow-[0_0_10px_rgba(0,255,157,0.3)] cursor-pointer">
+						class="hidden md:flex items-center gap-2 rounded-lg bg-[#00ff9d] px-5 py-2.5 text-sm font-bold text-black transition-all hover:bg-[#00ff9d] hover:shadow-[0_0_20px_rgba(0,255,157,0.4)] hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
 						<span>Connect Wallet</span>
 					</button>
 
@@ -124,3 +140,15 @@
 		<slot />
 	</main>
 </div>
+
+<style>
+    @keyframes shine {
+        to {
+            background-position: 200% center;
+        }
+    }
+
+    .animate-shine {
+        animation: shine 3s linear infinite;
+    }
+</style>

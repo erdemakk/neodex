@@ -1,19 +1,40 @@
-import { db } from '$lib/db';
-import { redirect } from '@sveltejs/kit';
+import { connectDB } from '$lib/db';
+import { User } from '$lib/server/models/User';
+import { redirect, fail } from '@sveltejs/kit';
 
 export const actions = {
 	register: async ({ request }) => {
 		const data = await request.formData();
-		const username = data.get('username');
-		const email = data.get('email');
-		const password = data.get('password');
-		await db.collection('users').insertOne({
-			username,
-			email,
-			password,
-			balance: 100,
-			createdAt: new Date()
-		});
-		throw redirect(303,'/');
+		const username = data.get('username')?.toString().trim();
+		const email = data.get('email')?.toString().trim();
+		const password = data.get('password')?.toString().trim();
+
+		if (!username || !email || !password) {
+			return fail(400, { message: "Tüm alanları doldurunuz." });
+		}
+
+		try {
+			await connectDB();
+
+			const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+			if (existingUser) {
+				return fail(400, { message: "Bu kullanıcı adı veya e-posta zaten kullanımda." });
+			}
+
+			const newUser = new User({
+				username,
+				email,
+				password,
+				balances: { usdt: 1000, neo: 100 }
+			});
+
+			await newUser.save();
+
+		} catch (error) {
+			console.error(error);
+			return fail(500, { message: "Kayıt sırasında bir sunucu hatası oluştu." });
+		}
+
+		throw redirect(303, '/login');
 	}
 };

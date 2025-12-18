@@ -1,29 +1,44 @@
-import { db } from '$lib/db';
+import { connectDB } from '$lib/db';
+import { User } from '$lib/server/models/User';
 import { fail, redirect } from '@sveltejs/kit';
 
 export const actions = {
 	login: async ({ request, cookies }) => {
 		const data = await request.formData();
-		const username = data.get('username');
-		const password = data.get('password');
+		const username = data.get('username')?.toString().trim();
+		const password = data.get('password')?.toString().trim();
 
 		if (!username || !password) {
-			return fail(400, { message: "Missing username or password." });
+			return fail(400, { message: "Kullanıcı adı veya şifre eksik." });
 		}
 
-		const user = await db.collection('users').findOne({ username });
+		let loginSuccess = false;
 
-		if (!user || user.password !== password) {
-			return fail(400, { message: "Invalid username or password." });
+		try {
+			await connectDB();
+
+			const user = await User.findOne({ username });
+
+			if (!user || user.password !== password) {
+				return fail(400, { message: "Geçersiz kullanıcı adı veya şifre." });
+			}
+
+			cookies.set('session', username, {
+				path: '/',
+				httpOnly: true,
+				sameSite: 'strict',
+				maxAge: 60 * 60 * 24 * 7
+			});
+
+			loginSuccess = true;
+
+		} catch (error) {
+			console.error(error);
+			return fail(500, { message: "Sunucu hatası oluştu." });
 		}
 
-		cookies.set('session', username as string, {
-			path: '/',
-			httpOnly: true,
-			sameSite: 'strict',
-			maxAge: 60 * 60 * 24 * 7
-		});
-
-		throw redirect(303, '/');
+		if (loginSuccess) {
+			throw redirect(303, '/');
+		}
 	}
 };

@@ -1,70 +1,63 @@
 <script lang="ts">
-	// --- 1. CÜZDAN KISMI (ESKİSİ) ---
-	let wallet = $state<{ address: string | null }>({ address: null });
+	let weight = $state(70);
+	let height = $state(170);
 
-	const connectWallet = () => {
-		const randomHex = Math.random().toString(16).slice(2);
-		wallet.address = "0x" + randomHex;
-	};
-	const disconnectWallet = () => { wallet.address = null; };
+	let bmi = $derived( weight / ( (height/100) * (height/100) ) );
 
-	// --- 2. YENİ KISIM: COIN LİSTESİ ---
-	// Statik (sabit) bir liste oluşturduk.
-	// Gerçek projede bu veriler internetten (API) gelir.
-	let coins = $state([
-		{ name: 'Bitcoin', symbol: 'BTC', price: 96500, color: 'bg-orange-500' },
-		{ name: 'Ethereum', symbol: 'ETH', price: 3700, color: 'bg-blue-600' },
-		{ name: 'Solana', symbol: 'SOL', price: 245, color: 'bg-purple-500' },
-		{ name: 'Tether', symbol: 'USDT', price: 1.00, color: 'bg-green-500' }
-	]);
+	let status = $derived.by(() => {
+		if (bmi < 18.5) return "Zayıf";
+		if (bmi < 25) return "Sağlıklı";
+		if (bmi < 30) return "Kilolu";
+		return "Obez";
+	});
+
+	let colorClass = $derived.by(() => {
+		if (bmi < 18.5) return "text-blue-400";
+		if (bmi < 25) return "text-green-500";
+		if (bmi < 30) return "text-orange-500";
+		return "text-red-500";
+	});
 </script>
 
-<div class="relative bg-gray-900 h-screen flex flex-col items-center pt-32 text-white font-sans overflow-hidden">
+<div class="bg-gray-900 h-screen flex items-center justify-center font-sans text-white">
 
-	<h1 class="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-12">
-		Market Overview
-	</h1>
+	<div class="bg-green-900 p-10 rounded-3xl shadow-2xl w-[400px] border border-gray-700 flex flex-col gap-8">
 
-	<div class="grid grid-cols-2 gap-6 w-[600px]">
+		<h1 class="text-3xl font-bold text-center text-gray-200">Sağlık Robotu 🤖</h1>
 
-		{#each coins as coin}
+		<div>
+			<label class="block text-gray-400 text-sm mb-2 font-bold">KİLO (kg)</label>
 
-			<div class="bg-gray-800 p-6 rounded-2xl border border-gray-700 shadow-xl flex items-center justify-between hover:scale-105 transition-transform cursor-pointer">
+			<input type="range" min="30" max="150" bind:value={weight} class="w-full h-2 bg-gray-600 rounded-lg cursor-pointer mb-2">
 
-				<div class="flex items-center gap-4">
-					<div class="w-12 h-12 rounded-full {coin.color} flex items-center justify-center font-bold text-xl">
-						{coin.symbol[0]} </div>
-
-					<div class="flex flex-col">
-						<span class="font-bold text-lg">{coin.name}</span>
-						<span class="text-gray-400 text-sm">{coin.symbol}</span>
-					</div>
-				</div>
-
-				<div class="text-right">
-					<div class="font-mono text-xl font-bold">${coin.price.toLocaleString()}</div>
-					<div class="text-xs text-green-400">+2.4%</div> </div>
-
+			<div class="flex justify-between items-center">
+				<input type="number" bind:value={weight} class="bg-gray-700 p-2 rounded w-20 font-bold border border-gray-600 text-center">
+				<span class="text-gray-500 text-sm">kg</span>
 			</div>
+		</div>
 
-		{/each}
-	</div>
+		<div>
+			<label class="block text-gray-400 text-sm mb-2 font-bold">BOY (cm)</label>
 
+			<input type="range" min="100" max="230" bind:value={height} class="w-full h-2 bg-gray-600 rounded-lg cursor-pointer mb-2">
 
-	<div class="absolute top-6 right-6">
-		{#if wallet.address}
-			<div class="w-[300px] h-[60px] flex items-center justify-between px-6 bg-gray-800 border border-gray-700 rounded-full shadow-lg">
-				<div class="flex items-center gap-3">
-					<div class="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
-					<span class="font-mono text-green-400 font-bold text-lg">
-            {wallet.address.slice(0,6)}...
-          </span>
-				</div>
-				<button onclick={disconnectWallet} class="text-red-400 hover:text-red-300 text-sm font-bold cursor-pointer hover:underline">Çıkış</button>
+			<div class="flex justify-between items-center">
+				<input type="number" bind:value={height} class="bg-gray-700 p-2 rounded w-20 font-bold border border-gray-600 text-center">
+				<span class="text-gray-500 text-sm">cm</span>
 			</div>
-		{:else}
-			<button onclick={connectWallet} class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-full font-bold shadow-lg transition-all hover:scale-105 cursor-pointer">Connect Wallet</button>
-		{/if}
-	</div>
+		</div>
+		<div class="border-4 {colorClass} rounded-2xl p-6 text-center transition-all duration-500 mt-6">
 
+			<p class="text-gray-400 text-xs uppercase tracking-widest mb-2">Vücut Kitle Endeksi</p>
+
+			<h2 class="text-6xl font-bold mb-2 text-white">
+				{bmi.toFixed(1)}
+			</h2>
+
+			<p class="text-xl font-bold uppercase tracking-wider {colorClass}">
+				{status}
+			</p>
+
+		</div>
+	</div>
 </div>

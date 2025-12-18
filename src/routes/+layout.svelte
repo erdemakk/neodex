@@ -10,8 +10,14 @@
 
 	export let data;
 
-	$: shortAddress = $wallet.address
+	// Cüzdan adresi kısaltma (MetaMask'tan gelen)
+	$: walletAddressShort = $wallet.address
 		? `${$wallet.address.slice(0, 6)}...${$wallet.address.slice(-4)}`
+		: '';
+
+	// Veritabanından gelen kullanıcı adı (Login olmuşsa)
+	$: dbUserShort = data.user?.username
+		? (data.user.username.length > 10 ? `${data.user.username.slice(0, 8)}...` : data.user.username)
 		: '';
 
 	const handleConnect = async () => {
@@ -22,22 +28,12 @@
 
 			const address = result.accounts[0];
 
+			// Sadece Store'u güncelle, sayfayı yenileme veya api'ye gitme (Sadece cüzdan bağlıyoruz)
 			if (address) {
-				const response = await fetch('/api/login', {
-					method: 'POST',
-					body: JSON.stringify({ address }),
-					headers: { 'Content-Type': 'application/json' }
+				wallet.set({
+					address: address,
+					isConnected: true
 				});
-
-				const resData = await response.json();
-
-				if (resData.success) {
-					wallet.set({
-						address: address,
-						isConnected: true
-					});
-					window.location.reload();
-				}
 			}
 
 		} catch (error) {
@@ -45,7 +41,7 @@
 		}
 	};
 
-	const handleDisconnect = async () => {
+	const handleDisconnectWallet = async () => {
 		try {
 			await disconnect(config);
 			wallet.set({ address: '', isConnected: false });
@@ -55,11 +51,10 @@
 	};
 
 	onMount(() => {
-		if (data.user) {
-			wallet.set({
-				address: data.user.address,
-				isConnected: true
-			});
+		// Eğer kullanıcının DB'de kayıtlı bir adresi varsa onu varsayılan olarak store'a atabiliriz
+		// Ancak Wagmi genelde kendi durumunu hatırlar.
+		if (data.user && data.user.address) {
+			wallet.update(w => ({ ...w, address: data.user.address }));
 		}
 	});
 </script>
@@ -72,12 +67,10 @@
 			<a href="/" class="group flex items-center gap-3 select-none">
 				<div class="relative flex h-10 w-10 items-center justify-center">
 					<div class="absolute inset-0 rounded-xl bg-[#00ff9d] blur-md opacity-20 transition-opacity duration-500 group-hover:opacity-100 group-hover:blur-lg"></div>
-
 					<div class="relative flex h-full w-full items-center justify-center rounded-xl border border-white/10 bg-black/90 transition-colors duration-300 group-hover:border-[#00ff9d]/50">
 						<div class="h-3.5 w-3.5 rounded-sm bg-[#00ff9d] transition-transform duration-500 group-hover:rotate-180 shadow-[0_0_10px_#00ff9d]"></div>
 					</div>
 				</div>
-
 				<div class="flex flex-col leading-none">
       <span class="text-2xl font-black tracking-tighter text-white">
        Neo<span class="bg-gradient-to-r from-[#00ff9d] via-white to-[#00ff9d] bg-[length:200%_auto] bg-clip-text text-transparent animate-shine">DEX</span>
@@ -104,32 +97,42 @@
 			<div class="flex items-center gap-4">
 
 				{#if data.user}
-					<div class="hidden md:flex flex-col items-end mr-2">
-						<span class="text-sm font-bold text-white uppercase tracking-wider">{shortAddress}</span>
+					<div class="hidden md:flex flex-col items-end mr-2 border-r border-white/10 pr-4">
+						<span class="text-sm font-bold text-white uppercase tracking-wider">{dbUserShort}</span>
 						<div class="flex gap-3 text-xs font-mono opacity-80">
-							<span class="text-[#00ff9d]">{data.user.balances?.usdt || '0.00'} USDT</span>
-							<span class="text-purple-400">{data.user.balances?.neo || '0.00'} NEO</span>
+							<span class="text-[#00ff9d]">{data.user.balances?.usdt || '0'} USDT</span>
+							<span class="text-purple-400">{data.user.balances?.neo || '0'} NEO</span>
 						</div>
 					</div>
+				{/if}
 
-					<form method="POST" action="/?/logout" on:submit={handleDisconnect}>
-						<button type="submit"
-										class="text-xs font-bold text-red-400 border border-red-500/20 hover:border-red-500 hover:bg-red-500/10 transition-all px-4 py-2 rounded-lg cursor-pointer">
-							EXIT
-						</button>
-					</form>
-
+				{#if $wallet.isConnected}
+					<button
+						on:click={handleDisconnectWallet}
+						class="hidden md:flex items-center gap-2 rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-sm font-mono text-gray-300 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
+						title="Disconnect Wallet">
+						<div class="w-2 h-2 rounded-full bg-[#00ff9d] shadow-[0_0_8px_#00ff9d]"></div>
+						{walletAddressShort}
+					</button>
 				{:else}
-					<a href="{base}/login" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">
-						Login
-					</a>
-
 					<button
 						on:click={handleConnect}
-						class="hidden md:flex items-center gap-2 rounded-lg bg-[#00ff9d] px-5 py-2.5 text-sm font-bold text-black transition-all hover:bg-[#00ff9d] hover:shadow-[0_0_20px_rgba(0,255,157,0.4)] hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+						class="hidden md:flex items-center gap-2 rounded-lg bg-[#00ff9d]/10 border border-[#00ff9d]/50 px-4 py-2 text-sm font-bold text-[#00ff9d] transition-all hover:bg-[#00ff9d] hover:text-black hover:shadow-[0_0_20px_rgba(0,255,157,0.4)] cursor-pointer">
 						<span>Connect Wallet</span>
 					</button>
+				{/if}
 
+				{#if data.user}
+					<form method="POST" action="/?/logout">
+						<button type="submit"
+										class="text-xs font-bold text-red-400 border border-red-500/20 hover:border-red-500 hover:bg-red-500/10 transition-all px-4 py-2 rounded-lg cursor-pointer h-full">
+							Logout
+						</button>
+					</form>
+				{:else}
+					<a href="{base}/login" class="text-sm font-medium text-gray-400 hover:text-white transition-colors ml-2">
+						Login
+					</a>
 				{/if}
 
 			</div>
@@ -147,7 +150,6 @@
             background-position: 200% center;
         }
     }
-
     .animate-shine {
         animation: shine 3s linear infinite;
     }

@@ -2,16 +2,16 @@ import { connectDB } from '$lib/db';
 import { User } from '$lib/server/models/User';
 
 export const load = async ({ cookies }) => {
-	const userAddress = cookies.get('session');
+	const username = cookies.get('session');
 
-	if (!userAddress) {
+	if (!username) {
 		return { user: null };
 	}
 
 	try {
 		await connectDB();
 
-		const user = await User.findOne({ address: userAddress }).lean();
+		const user = await User.findOne({ username }).lean();
 
 		if (!user) {
 			return { user: null };
@@ -19,15 +19,16 @@ export const load = async ({ cookies }) => {
 
 		return {
 			user: {
-				username: user.address.slice(0, 6) + '...' + user.address.slice(-4),
-				address: user.address,
+				username: user.username,
+				email: user.email,
+				address: user.address || null,
 				balances: user.balances,
 				_id: user._id.toString()
 			}
 		};
 
 	} catch (error) {
-		console.error('Layout Load Hatası:', error);
+		console.error(error);
 		return { user: null };
 	}
 };

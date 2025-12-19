@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
 
+// Önceki modelleri hafızadan sil (Cache temizliği)
+delete mongoose.models.User;
+delete mongoose.models.UserNew;
+
 const userSchema = new mongoose.Schema({
 	username: {
 		type: String,
@@ -9,24 +13,21 @@ const userSchema = new mongoose.Schema({
 	},
 	email: {
 		type: String,
-		required: true,
+		required: false, // <-- KESİN: Zorunlu değil
 		unique: true,
+		sparse: true,    // <-- Email yoksa hata verme
 		trim: true,
 		lowercase: true
 	},
 	password: {
 		type: String,
-		required: true
+		required: false  // <-- KESİN: Zorunlu değil
 	},
 	address: {
 		type: String,
 		required: false,
 		unique: true,
 		sparse: true
-	},
-	nonce: {
-		type: String,
-		default: () => Math.floor(Math.random() * 1000000).toString()
 	},
 	balances: {
 		usdt: { type: Number, default: 1000 },
@@ -35,4 +36,6 @@ const userSchema = new mongoose.Schema({
 	createdAt: { type: Date, default: Date.now }
 });
 
-export const User = mongoose.models.User || mongoose.model('User', userSchema);
+// Model ismini 'UserNew' yaparak veritabanını sıfırdan tablo açmaya zorluyoruz
+// Böylece eski hatalı verilerle çakışmayacak.
+export const User = mongoose.model('UserNew', userSchema);

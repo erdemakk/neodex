@@ -13,11 +13,7 @@
 			<a href="/kesfet" class="text-gray-400 hover:text-white transition-colors">Keşfet</a>
 			<a href="/iletisim" class="text-gray-400 hover:text-white transition-colors">İletişim</a>
 		</nav>
-		<div class="min-h-[80vh] flex flex-col items-center justify-center relative overflow-hidden">
-
-			<div class="absolute w-[500px] h-[500px] bg-green-500/20 blur-[120px] rounded-full pointer-events-none"></div>
-
-		</div>
+		
 
 	</div>
 </header>

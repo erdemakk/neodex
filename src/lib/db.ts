@@ -1,17 +1,5 @@
-// $lib/db.ts
-import mongoose from 'mongoose';
+import { MongoClient } from 'mongodb';
 import { MONGO_URI } from '$env/static/private';
 
-export const connectDB = async () => {
-	// Bağlantı zaten varsa beklemeden dön
-	if (mongoose.connection.readyState === 1) return;
-
-	try {
-		await mongoose.connect(MONGO_URI);
-		console.log('✅ MongoDB Bağlantısı Başarılı');
-	} catch (error) {
-		console.error('❌ MongoDB Bağlantı Hatası:', error);
-		// Hatayı yukarı fırlatmalıyız ki server.ts bunu fark etsin
-		throw new Error('Veritabanına bağlanılamadı');
-	}
-};
+const client = new MongoClient(MONGO_URI);
+export const db = client.db('neodex');

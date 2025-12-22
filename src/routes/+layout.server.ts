@@ -5,7 +5,6 @@ import type { LayoutServerLoad } from './$types';
 export const load: LayoutServerLoad = async ({ cookies }) => {
 	const session = cookies.get('session');
 
-	// Terminali kontrol et: Bu satır yazıyor mu?
 	console.log('Layout Server Session Kontrolü:', session ? session : 'Session YOK');
 
 	if (!session) {

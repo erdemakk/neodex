@@ -40,7 +40,7 @@
 		"@wagmi/connectors": "^7.0.2",
 		"@wagmi/core": "^3.0.0",
 		"mongodb": "^7.0.0",
-		"mongoose": "^9.0.0",
+		"mongoose": "^9.0.2",
 		"viem": "^2.40.3"
 	}
 }

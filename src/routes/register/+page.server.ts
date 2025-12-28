@@ -1,6 +1,6 @@
+import { fail, redirect } from '@sveltejs/kit';
 import { connectDB } from '$lib/db';
 import { User } from '$lib/server/models/User';
-import { redirect, fail } from '@sveltejs/kit';
 
 export const actions = {
 	register: async ({ request }) => {
@@ -24,8 +24,7 @@ export const actions = {
 			const newUser = new User({
 				username,
 				email,
-				password,
-				balances: { usdt: 1000, neo: 100 }
+				password
 			});
 
 			await newUser.save();

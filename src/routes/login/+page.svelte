@@ -1,7 +1,6 @@
 <script lang="ts">
 	import LoginForm from '$lib/components/LoginForm.svelte';
 
-	// Backend'den gelen form cevabını (hata mesajlarını) alıyoruz
 	export let form;
 </script>
 

@@ -1,5 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { connectDB } from '$lib/db';
+import { connectDB } from '$lib/db.ts';
 import { User } from '$lib/server/models/User';
 
 export const actions = {
